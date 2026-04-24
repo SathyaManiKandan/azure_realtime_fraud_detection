@@ -1,0 +1,178 @@
+{
+  "report_generated_at": "2026-04-04T12:00:05.285349",
+  "dataset": {
+    "train_size": 50000,
+    "validation_size": 10000,
+    "test_size": 10000,
+    "fraud_rate": "8%",
+    "total_fraud_in_test": 800,
+    "total_normal_in_test": 9200
+  },
+  "metric_definitions": {
+    "recall": {
+      "value": 0.9138,
+      "formula": "TP / (TP + FN)",
+      "meaning": "Out of ALL real fraud transactions, what % did the model catch? Most important metric for fraud detection \u2014 missing real fraud is dangerous. Target: > 0.85",
+      "our_result": "Model caught 731 out of 800 real fraud transactions (91.4%). Missed 69 fraud transactions."
+    },
+    "precision": {
+      "value": 0.781,
+      "formula": "TP / (TP + FP)",
+      "meaning": "Out of ALL transactions flagged as fraud, what % were actually fraud? Low precision = too many false alarms = review team overwhelmed. Target: > 0.60",
+      "our_result": "Of 936 total fraud alerts raised, 731 were genuine and 205 were false alarms (78.1% hit rate)."
+    },
+    "roc_auc": {
+      "value": 0.9863,
+      "formula": "Area under ROC curve (True Positive Rate vs False Positive Rate)",
+      "meaning": "Overall model quality \u2014 how well it distinguishes fraud from normal across ALL thresholds. 0.5 = random guessing, 1.0 = perfect. Target: > 0.90",
+      "our_result": "Score of 0.9863 means excellent discriminating ability between fraud and normal transactions."
+    },
+    "pr_auc": {
+      "value": 0.9443,
+      "formula": "Area under Precision-Recall curve",
+      "meaning": "Better than ROC-AUC for imbalanced datasets like fraud detection. Measures model quality specifically on the minority class (fraud). Random classifier baseline = fraud rate (0.08). Target: > 0.70",
+      "our_result": "Score of 0.9443 is significantly above the random baseline of 0.08 \u2014 model is highly effective on fraud class."
+    },
+    "f1_score": {
+      "meaning": "Harmonic mean of precision and recall. Useful single number when you want balance between both. For fraud detection recall matters more, so we use it alongside F1 not instead of it."
+    },
+    "accuracy": {
+      "meaning": "Overall % of correct predictions. MISLEADING for fraud detection \u2014 a model predicting everything as normal gets 92% accuracy but catches zero fraud. Not used as primary metric."
+    }
+  },
+  "confusion_matrix": {
+    "true_negatives": {
+      "value": 8995,
+      "meaning": "Normal transactions correctly identified as normal \u2014 no action needed"
+    },
+    "false_positives": {
+      "value": 205,
+      "meaning": "Normal transactions incorrectly flagged as fraud \u2014 false alarms. Go to manual review. Annoying but not dangerous."
+    },
+    "false_negatives": {
+      "value": 69,
+      "meaning": "Real fraud transactions missed by the model \u2014 most dangerous outcome. These fraudulent transactions go undetected. Must minimize this."
+    },
+    "true_positives": {
+      "value": 731,
+      "meaning": "Real fraud transactions correctly caught \u2014 the best outcome"
+    }
+  },
+  "threshold_analysis": {
+    "explanation": "The model outputs a fraud probability (0.0 to 1.0) per transaction. The threshold decides at what probability we call it fraud. Lower = catch more fraud (higher recall) but more false alarms. Higher = fewer false alarms but miss more fraud. Recommended for banking: 0.5",
+    "recommended_threshold": 0.5,
+    "results": [
+      {
+        "threshold": 0.2,
+        "recall": 1.0,
+        "precision": 0.08,
+        "fraud_caught": 800,
+        "fraud_missed": 0
+      },
+      {
+        "threshold": 0.3,
+        "recall": 1.0,
+        "precision": 0.08,
+        "fraud_caught": 800,
+        "fraud_missed": 0
+      },
+      {
+        "threshold": 0.4,
+        "recall": 1.0,
+        "precision": 0.08,
+        "fraud_caught": 800,
+        "fraud_missed": 0
+      },
+      {
+        "threshold": 0.5,
+        "recall": 0.9138,
+        "precision": 0.781,
+        "fraud_caught": 731,
+        "fraud_missed": 69
+      },
+      {
+        "threshold": 0.6,
+        "recall": 0.0,
+        "precision": 0.0,
+        "fraud_caught": 0,
+        "fraud_missed": 800
+      }
+    ]
+  },
+  "feature_importance": {
+    "explanation": "How much each feature contributed to the model's decisions. Higher = more important. A healthy model has importance spread across multiple features \u2014 not dominated by one.",
+    "values": {
+      "is_foreign_int": 0.24446700513362885,
+      "is_suspicious_merchant": 0.2170410007238388,
+      "amount_zscore": 0.1861560046672821,
+      "is_night": 0.16388200223445892,
+      "amount_vs_avg_ratio": 0.08604200184345245,
+      "hour_of_day": 0.07439800351858139,
+      "amount_log": 0.024670999497175217,
+      "account_age_days": 0.0017340000486001372,
+      "txn_type_encoded": 0.0015409999759867787,
+      "is_new_account": 6.70000008540228e-05,
+      "is_high_amount": 0.0
+    }
+  },
+  "model_parameters": {
+    "algorithm": "XGBoost (Gradient Boosted Trees)",
+    "algorithm_explanation": "An ensemble of decision trees where each tree learns from the mistakes of the previous one. Industry standard for tabular fraud detection.",
+    "parameters": {
+      "n_estimators": {
+        "value": 200,
+        "meaning": "Number of trees in the ensemble. More = better but slower."
+      },
+      "max_depth": {
+        "value": 6,
+        "meaning": "Max depth of each tree. Too deep = memorises training data. Too shallow = misses patterns. 6 is a good default."
+      },
+      "learning_rate": {
+        "value": 0.05,
+        "meaning": "How much each new tree corrects the previous ones. Lower = more careful learning, better generalization."
+      },
+      "scale_pos_weight": {
+        "value": 11.5,
+        "meaning": "Ratio of normal to fraud samples (11.5x). Tells XGBoost to weight fraud examples more heavily to compensate for class imbalance."
+      },
+      "subsample": {
+        "value": 0.8,
+        "meaning": "Use 80% of rows per tree \u2014 adds randomness, prevents overfitting."
+      },
+      "colsample_bytree": {
+        "value": 0.8,
+        "meaning": "Use 80% of features per tree \u2014 adds randomness, prevents overfitting."
+      }
+    }
+  },
+  "features_used": {
+    "total_count": 11,
+    "list": [
+      "amount_log",
+      "amount_vs_avg_ratio",
+      "is_high_amount",
+      "amount_zscore",
+      "hour_of_day",
+      "is_night",
+      "is_foreign_int",
+      "is_suspicious_merchant",
+      "is_new_account",
+      "txn_type_encoded",
+      "account_age_days"
+    ],
+    "descriptions": {
+      "amount_log": "Log-scaled transaction amount \u2014 compresses wide value range",
+      "amount_vs_avg_ratio": "Transaction amount / customer avg spend \u2014 detects unusual spend",
+      "amount_zscore": "Std deviations from customer's normal spend \u2014 personalised signal",
+      "is_high_amount": "1 if amount > \u20b950,000 globally, else 0",
+      "hour_of_day": "Hour of transaction (0\u201323) \u2014 time pattern signal",
+      "is_night": "1 if transaction between 11 PM and 4 AM, else 0",
+      "is_foreign_int": "1 if transaction from a foreign location, else 0",
+      "is_suspicious_merchant": "1 if merchant is CASINO / CRYPTO etc., else 0",
+      "is_new_account": "1 if account age < 90 days \u2014 new accounts are higher risk",
+      "txn_type_encoded": "Transaction type as number (UPI=0, NEFT=1, IMPS=2 etc.)",
+      "account_age_days": "Age of customer account in days",
+      "spend_std": "Customer's spending std deviation \u2014 measures spend variability"
+    }
+  }
+}

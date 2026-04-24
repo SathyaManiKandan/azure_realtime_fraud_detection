@@ -1,0 +1,32 @@
+{
+  "model_name": "FraudDetectionModel",
+  "version": "v1",
+  "algorithm": "XGBoost",
+  "threshold": 0.5,
+  "features": [
+    "amount_log",
+    "amount_vs_avg_ratio",
+    "is_high_amount",
+    "amount_zscore",
+    "hour_of_day",
+    "is_night",
+    "is_foreign_int",
+    "is_suspicious_merchant",
+    "is_new_account",
+    "txn_type_encoded",
+    "account_age_days"
+  ],
+  "train_size": 50000,
+  "metrics": {
+    "recall": 0.9138,
+    "precision": 0.781,
+    "roc_auc": 0.9863,
+    "pr_auc": 0.9443
+  },
+  "params": {
+    "n_estimators": 200,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "scale_pos_weight": 11.5
+  }
+}

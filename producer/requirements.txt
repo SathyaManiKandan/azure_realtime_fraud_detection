@@ -1,0 +1,6 @@
+faker==24.0.0
+kafka-python-ng
+pandas
+numpy
+scikit-learn
+python-dotenv
