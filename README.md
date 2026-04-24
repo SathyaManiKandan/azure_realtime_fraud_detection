@@ -21,14 +21,7 @@ Databricks Structured Streaming
       ├──▶ Silver Layer (ADLS) — Fraud flagged + Cleaned
       └──▶ Gold Layer  (ADLS) — Aggregated metrics
                                       │
-                                      ▼
-                            Synapse Serverless Pool
-                            (Views on Gold Layer)
-                                      │
-                                      ▼
-                                  Power BI
-                            (Live Fraud Dashboard)
-```
+            
 
 ---
 
@@ -53,7 +46,7 @@ fraud-detection-pipeline/
 │   ├── config_model.py                 # Feature engineering config
 │   └── requirements.txt
 │
-├── databricks/                         # Databricks notebooks
+├── consumer/databricks/                         # Databricks notebooks
 │   ├── 01_bronze_ingestion.py          # Stream from Event Hub → Bronze
 │   ├── 02_silver_processing.py         # Feature engineering + ML scoring
 │   └── 03_gold_aggregation.py          # Aggregated metrics → Gold
@@ -77,84 +70,12 @@ fraud-detection-pipeline/
 | **Streaming** | Azure Event Hub (Kafka Protocol) |
 | **Processing** | Azure Databricks, Spark Structured Streaming |
 | **ML Model** | XGBoost, Scikit-learn |
-| **ML Ops** | MLflow (Tracking, Model Registry, spark_udf) |
 | **Storage** | Azure Data Lake Storage Gen2 (Delta Lake) |
 | **Lakehouse** | Medallion Architecture (Bronze / Silver / Gold) |
-| **Query Layer** | Azure Synapse Serverless Pool |
-| **Reporting** | Power BI |
-| **Alerting** | Azure Monitor, Azure Logic Apps |
-| **Security** | Azure Key Vault, RBAC |
+
+
 
 ---
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.10+
-- Azure Subscription (Event Hub, ADLS Gen2, Databricks, Synapse)
-- Azure CLI installed
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/fraud-detection-pipeline.git
-cd fraud-detection-pipeline
-```
-
-### 2. Set Up Environment
-
-```bash
-# Copy env template and fill in your values
-cp .env.example .env
-```
-
-Edit `.env` with your Azure credentials:
-
-```bash
-EH_NAMESPACE=your-eventhub-namespace
-EH_NAME=transactions
-EH_CONN_STRING=Endpoint=sb://...
-```
-
-### 3. Install Producer Dependencies
-
-```bash
-cd producer
-pip install -r requirements.txt
-```
-
-### 4. Generate Training Data
-
-```bash
-python generate_training_data.py
-
-# Output:
-# data/train.csv        → 50,000 rows
-# data/validation.csv   → 10,000 rows
-# data/test.csv         → 10,000 rows
-```
-
-### 5. Train the ML Model
-
-```bash
-cd ../model
-pip install -r requirements.txt
-python train.py
-
-
-### 6. Run Real-Time Simulator
-
-```bash
-cd ../producer
-
-# Local mode (before Event Hub setup)
-python realtime_simulator.py
-
-# Event Hub mode (after Azure setup)
-# Set .env values and run the same command
-python realtime_simulator.py
-```
 
 ---
 
@@ -201,64 +122,9 @@ The pipeline detects fraud using a combination of **rule-based signals** and an 
 
 ---
 
-## 🤖 MLflow Model Lifecycle
-
-```
-Train locally (train.py)
-      │
-      ▼
-Log params + metrics + artifacts
-      │
-      ▼
-Register → FraudDetectionModel (Version N)
-      │
-      ├──▶ Staging   (testing)
-      └──▶ Production (live scoring in Databricks stream)
 ```
 
-### Key Model Metrics (Targets)
 
-| Metric | Target |
-|---|---|
-| Recall | > 85% |
-| Precision | > 60% |
-| ROC-AUC | > 0.90 |
-| PR-AUC | > 0.70 |
-
----
-
-## 🚨 Alerting
-
-| Alert Type | Tool | Trigger |
-|---|---|---|
-| High-risk fraud | Azure Monitor | fraud\_score > 80 |
-| Real-time notification | Azure Logic App | fraud alert topic on Event Hub |
-| Dashboard threshold | Power BI | > 50 fraud txns/hour |
-| Data quality | Dead Letter Queue | Malformed / unparseable records |
-
----
-
-## 🔐 Security
-
-- All secrets stored in **Azure Key Vault** — never hardcoded
-- ADLS access controlled via **RBAC** (Role-Based Access Control)
-- `.env` file is **gitignored** — use `.env.example` as template
-
----
-
-## 🗺️ Roadmap
-
-- [x] Transaction simulator (normal + fraud patterns)
-- [x] Training data generator (70k rows)
-- [x] XGBoost model training + MLflow
-- [ ] Azure Event Hub setup
-- [ ] Databricks Structured Streaming notebooks
-- [ ] Bronze / Silver / Gold Delta Lake setup
-- [ ] Synapse Serverless Pool views
-- [ ] Power BI dashboard
-- [ ] Azure Monitor + Logic App alerts
-
----
 
 ## 👤 Author
 
