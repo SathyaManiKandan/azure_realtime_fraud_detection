@@ -21,7 +21,14 @@ Databricks Structured Streaming
       ├──▶ Silver Layer (ADLS) — Fraud flagged + Cleaned
       └──▶ Gold Layer  (ADLS) — Aggregated metrics
                                       │
-            
+                                      ▼
+                            Synapse Serverless Pool
+                            (Views on Gold Layer)
+                                      │
+                                      ▼
+                                  Power BI
+                            (Live Fraud Dashboard)
+```
 
 ---
 
@@ -46,7 +53,7 @@ fraud-detection-pipeline/
 │   ├── config_model.py                 # Feature engineering config
 │   └── requirements.txt
 │
-├── consumer/databricks/                         # Databricks notebooks
+├── databricks/                         # Databricks notebooks
 │   ├── 01_bronze_ingestion.py          # Stream from Event Hub → Bronze
 │   ├── 02_silver_processing.py         # Feature engineering + ML scoring
 │   └── 03_gold_aggregation.py          # Aggregated metrics → Gold
@@ -62,37 +69,6 @@ fraud-detection-pipeline/
 
 ---
 
-## 🧰 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| **Language** | Python, PySpark, SQL |
-| **Streaming** | Azure Event Hub (Kafka Protocol) |
-| **Processing** | Azure Databricks, Spark Structured Streaming |
-| **ML Model** | XGBoost, Scikit-learn |
-| **Storage** | Azure Data Lake Storage Gen2 (Delta Lake) |
-| **Lakehouse** | Medallion Architecture (Bronze / Silver / Gold) |
-
-
-
----
-
----
-
-## 🔍 Fraud Detection Logic
-
-The pipeline detects fraud using a combination of **rule-based signals** and an **XGBoost ML model**.
-
-### Fraud Patterns Simulated
-
-| Pattern | Description |
-|---|---|
-| High absolute amount | Transaction amount > ₹75,000 |
-| Exceeds personal avg spend | 3x–10x the customer's own average spend |
-| Foreign location | Transaction from a foreign country |
-| Suspicious merchant | CASINO, CRYPTO\_EXCHANGE, UNKNOWN etc. |
-| Odd hours | Transaction between 11 PM – 4 AM |
-| Combo | Multiple suspicious signals at once |
 
 ### ML Features Used
 
@@ -121,9 +97,6 @@ The pipeline detects fraud using a combination of **rule-based signals** and an 
 | **Gold** | `adls/gold/metrics` | Aggregated fraud metrics by date/location |
 
 ---
-
-```
-
 
 
 ## 👤 Author
